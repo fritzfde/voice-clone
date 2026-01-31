@@ -10,6 +10,7 @@ from flask import Flask, request, send_file
 from TTS.api import TTS
 import os
 import tempfile
+import argparse
 
 app = Flask(__name__)
 
@@ -83,7 +84,44 @@ def health():
     return {'status': 'ready', 'model': 'xtts_v2'}
 
 
+def cli_mode():
+    parser = argparse.ArgumentParser(description="XTTS Voice Test")
+    parser.add_argument("--voice", type=str, help="Path to voice wav file")
+    parser.add_argument("--text", type=str, help="Text to synthesize")
+
+    args, _ = parser.parse_known_args()
+
+    if not args.voice or not args.text:
+        return False  # Not CLI mode
+
+    print("🎙️ CLI TTS MODE", file=sys.stderr)
+    print(f"   Voice: {args.voice}", file=sys.stderr)
+    print(f"   Text : {args.text}", file=sys.stderr)
+
+    if not os.path.exists(args.voice):
+        print("❌ Voice file not found", file=sys.stderr)
+        sys.exit(1)
+
+    output_path = "output.wav"
+
+    tts.tts_to_file(
+        text=args.text,
+        speaker_wav=args.voice,
+        language="en",
+        file_path=output_path
+    )
+
+    print(f"✅ Saved to {output_path}", file=sys.stderr)
+    sys.exit(0)
+
+
 if __name__ == '__main__':
-    print("\n🚀 TTS Server Starting on http://localhost:5000", file=sys.stderr)
-    print("📡 Ready to receive requests...\n", file=sys.stderr)
-    app.run(host='127.0.0.1', port=5000, debug=False)
+    # 1. Check if we should run in CLI mode first
+    # We call the function and check if it handled the request
+    is_cli = cli_mode()
+
+    # 2. If cli_mode returned False (no args provided), start the server
+    if not is_cli:
+        print("\n🚀 No CLI arguments detected. Starting TTS Server...", file=sys.stderr)
+        print("📡 Server: http://localhost:5000", file=sys.stderr)
+        app.run(host='127.0.0.1', port=5000, debug=False)
