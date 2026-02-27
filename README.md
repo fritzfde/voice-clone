@@ -70,6 +70,31 @@ Access the UI: http://localhost:3000
 
 ---
 
+## 💻 CLI TTS Usage (Direct)
+
+If you want to generate speech directly from terminal (without starting Node/Flask servers), use `tts.py`.
+
+```bash
+# From project root
+source myenv/bin/activate
+python tts.py \
+  --voice voices/your_name.wav \
+  --text "Hello, this is a voice clone test." \
+  --output output.wav
+```
+
+### Arguments
+* `--voice`: Path to the reference `.wav` file (speaker voice sample).
+* `--text`: Text you want synthesized.
+* `--output`: Output `.wav` path.
+
+### Example
+```bash
+python tts.py --voice voices/alex.wav --text "Welcome to my cloned voice demo." --output demo.wav
+```
+
+---
+
 ## ⚙️ Performance Notes
 * Hardware: On M1/M2/M3 Macs, generation takes ~5-15 seconds depending on text length.
 * Reference Audio: Files between 6-10 seconds are ideal. Clips over 15 seconds increase processing time without improving quality.
